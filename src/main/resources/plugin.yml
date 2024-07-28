@@ -1,0 +1,8 @@
+name: BetaDiscordBridge
+version: '${project.version}'
+main: me.lukiiy.betadiscordbridge.DiscordBridge
+author: Lukiiy
+commands:
+  discordbridge:
+    description: "Reloads the plugin"
+    permission: discordbridge.reload
