@@ -1,0 +1,43 @@
+package me.lukiiy.discordBridge.listeners;
+
+import me.lukiiy.discordBridge.DCBridge;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.server.BroadcastMessageEvent;
+
+public class Default implements Listener {
+    DCBridge bridge = DCBridge.getInstance();
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void chat(AsyncPlayerChatEvent e) {
+        if (!bridge.configBool("discord.chatToMinecraft")) return;
+        DCBridge.sendDCMsg(bridge.configString("format.mc")
+                .replace("(user)", e.getPlayer().getDisplayName())
+                .replace("(msg)", e.getMessage())
+        );
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void join(PlayerJoinEvent e) {send(e.getJoinMessage());}
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void quit(PlayerQuitEvent e) {send(e.getQuitMessage());}
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void death(PlayerDeathEvent e) {send(e.getDeathMessage());}
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void bcast(BroadcastMessageEvent e) {
+        DCBridge.sendDCMsg(e.getMessage());
+    }
+
+    private void send(String msg) {
+        if (!bridge.configBool("discord.playerEvents") || msg == null || msg.isEmpty()) return;
+        DCBridge.sendDCMsg(msg);
+    }
+}

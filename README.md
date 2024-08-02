@@ -1,6 +1,6 @@
-# DiscordBridge (for b1.7.3)
+# DiscordBridge
 
-> Minecraft b1.7.3 CraftBukkit Plugin (it also works on later versions, like 1.0)
+> Minecraft 1.16.5+ SpigotMC Plugin
 ---
 
 Creates a chat bridge between Discord & Minecraft.

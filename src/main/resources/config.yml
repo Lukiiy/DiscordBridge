@@ -1,0 +1,16 @@
+discord:
+  token: ''
+  channelId: 1234567890123456789
+  consoleAdminRoleId: 1234567890123456789
+  activity: "playing Minecraft" # Must start with streaming/competing/listening/playing. Ex: "streaming Minecraft"
+  status: "ONLINE" # Must be online/idle/do_not_disturb/invisible
+  chatToMinecraft: true
+  playerEvents: true
+  useMemberNameColor: true # Allows the plugin to use the discord user's name color
+msg:
+  serverStart: "**Server online!**"
+  serverStop: "**Server offline!**"
+format:
+  dcPrefix: "<color:#647ff8>[Discord]</color>" # Prefix used in Discord messages [Formatted with MiniMessage]
+  dc: "(user): (msg)" # Discord -> Minecraft [Formatted with MiniMessage]
+  mc: "<(user)> (msg)" # Minecraft -> Discord
