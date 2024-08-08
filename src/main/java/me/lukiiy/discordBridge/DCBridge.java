@@ -1,11 +1,13 @@
 package me.lukiiy.discordBridge;
 
-import me.lukiiy.discordBridge.api.CommandManager;
+import lombok.Getter;
+import me.lukiiy.discordBridge.api.CommandPlate;
 import me.lukiiy.discordBridge.cmds.Broadcast;
 import me.lukiiy.discordBridge.cmds.Reload;
-import me.lukiiy.discordBridge.dccmds.Console;
+import me.lukiiy.discordBridge.discordCmds.Console;
 import me.lukiiy.discordBridge.listeners.Default;
 import me.lukiiy.discordBridge.listeners.Discord;
+import me.lukiiy.discordBridge.util.GenericHelper;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -18,27 +20,32 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+
+@Getter
 public final class DCBridge extends JavaPlugin {
-    private static DCBridge inst;
+    @Getter private static DCBridge instance;
+    
     private JDA bot;
     private Guild guild;
     private TextChannel channel;
 
     public static Role consoleAdminRole;
 
-    public static BukkitAudiences bukkitAud;
-    public static Audience console;
-    public static final MiniMessage mm = MiniMessage.miniMessage();
+    private static Audience console;
+    private static final Map<String, CommandPlate> commands = new HashMap<>();
+
 
     @Override
     public void onEnable() {
-        inst = this;
-        bukkitAud = BukkitAudiences.create(this);
+        instance = this;
+        GenericHelper.audience = BukkitAudiences.create(this);
         setupConfig();
 
         String token = configString("discord.token");
@@ -50,8 +57,8 @@ public final class DCBridge extends JavaPlugin {
 
         startBot(token);
 
-        console = bukkitAud.console();
-        CommandManager.add(new Console());
+        console = GenericHelper.audience.console();
+        DCBridge.addCommand(new Console());
 
         getServer().getPluginManager().registerEvents(new Default(), this);
         bot.addEventListener(new Discord());
@@ -61,27 +68,20 @@ public final class DCBridge extends JavaPlugin {
 
         sendDCMsg(configString("msg.serverStart"));
 
-        Bukkit.getScheduler().runTaskLater(this, () -> CommandManager.load(guild.updateCommands()), 20L);
+        Bukkit.getScheduler().runTaskLater(this, () -> guild.updateCommands().addCommands(commands.values().stream().map(CommandPlate::command).toList()).queue(), 20L);
     }
 
     @Override
     public void onDisable() {
-        sendDCMsg(configString("msg.serverStop"), inst.channel);
-        guild.updateCommands().queue();
-        if (bukkitAud != null) bukkitAud.close();
         stopBot();
+        if (GenericHelper.audience != null) GenericHelper.audience.close();
     }
 
-    public static DCBridge getInstance() {return inst;}
-    public static JDA getJDA() {return inst.bot;}
-    public static Guild getGuild() {return inst.guild;}
-    public static TextChannel getChannel() {return inst.channel;}
+    public static JDA getJDA() {return instance.bot;}
+    public static Guild getGuild() {return instance.guild;}
+    public static TextChannel getChannel() {return instance.channel;}
 
     // Config
-    public String configString(String path) {return getConfig().getString(path);}
-    public boolean configBool(String path) {return getConfig().getBoolean(path, true);}
-    public long configLong(String path) {return getConfig().getLong(path);}
-
     public void setupConfig() {
         saveDefaultConfig();
         getConfig();
@@ -89,15 +89,19 @@ public final class DCBridge extends JavaPlugin {
         saveConfig();
     }
 
+    public static String configString(String path) {return instance.getConfig().getString(path);}
+    public static boolean configBool(String path) {return instance.getConfig().getBoolean(path, true);}
+    public static long configLong(String path) {return instance.getConfig().getLong(path);}
+
     // Extras
-    public static void sendDCMsg(@NotNull String msg) {sendDCMsg(msg, inst.channel);}
+    public static void sendDCMsg(@NotNull String msg) {sendDCMsg(msg, instance.channel);}
     public static void sendDCMsg(@NotNull String msg, @NotNull TextChannel c) {
-        if (!c.canTalk()) return;
-        c.sendMessage(Util.cleanFormat(msg)).queue();
+        if (instance.bot == null || !c.canTalk()) return;
+        c.sendMessage(GenericHelper.cleanFormat(msg)).queue();
     }
 
     public static void log(String info) {log(Component.text(info));}
-    public static void log(Component info) {bukkitAud.console().sendMessage(info);}
+    public static void log(Component info) {console.sendMessage(info);}
 
     private void startBot(@NotNull String token) {
         try {
@@ -122,26 +126,40 @@ public final class DCBridge extends JavaPlugin {
         setupPresence(configString("discord.status"), configString("discord.activity"));
     }
     
-    private void stopBot() {
-        if (bot == null) return;
-        bot.shutdownNow();
+    public void stopBot() {
+        if (bot != null) {
+            sendDCMsg(configString("msg.serverStop"), instance.channel);
+            guild.updateCommands().queue();
+            bot.shutdown();
+            try {
+                if (!bot.awaitShutdown(Duration.ofSeconds(3))) {
+                    bot.shutdownNow();
+                    bot.awaitShutdown();
+                }
+            } catch (Throwable e) {e.printStackTrace();}
+            bot = null;
+        }
     }
     
     private void setupPresence(@NotNull String status, @NotNull String activity) {
-        OnlineStatus status1 = OnlineStatus.ONLINE;
-        try {status1 = OnlineStatus.valueOf(status);}
+        OnlineStatus presence = OnlineStatus.ONLINE;
+        try {presence = OnlineStatus.valueOf(status);}
         catch (Throwable ignored) {}
 
-        bot.getPresence().setStatus(status1);
+        bot.getPresence().setStatus(presence);
         if (activity.isEmpty()) return;
 
-        String[] part = activity.split("\\s+", 2);
-        String what = part.length > 1 ? part[1] : activity;
+        String[] parts = activity.split("\\s+", 2);
+        String doingWhat = parts.length > 1 ? parts[1] : activity;
 
         Activity.ActivityType type = Activity.ActivityType.PLAYING;
-        try {type = Activity.ActivityType.valueOf(part[0].toUpperCase());}
+        try {type = Activity.ActivityType.valueOf(parts[0].toUpperCase());}
         catch (Throwable ignored) {}
 
-        bot.getPresence().setActivity(Activity.of(type, what));
+        bot.getPresence().setActivity(Activity.of(type, doingWhat));
     }
+
+    // Commands
+    public static Map<String, CommandPlate> getCommandMap() {return commands;}
+    public static void addCommand(CommandPlate cmd) {commands.put(cmd.command().getName(), cmd);}
 }

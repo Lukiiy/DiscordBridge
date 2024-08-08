@@ -1,9 +1,9 @@
 package me.lukiiy.discordBridge.listeners;
 
 import me.lukiiy.discordBridge.DCBridge;
-import me.lukiiy.discordBridge.Util;
-import me.lukiiy.discordBridge.api.CommandManager;
+import me.lukiiy.discordBridge.util.GenericHelper;
 import me.lukiiy.discordBridge.api.CommandPlate;
+import me.lukiiy.discordBridge.util.MemberHelper;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -19,7 +19,7 @@ public class Discord extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent e) {
-        if (!bridge.configBool("discordToMinecraft") || !e.getChannel().equals(DCBridge.getChannel())) return;
+        if (!DCBridge.configBool("discordToMinecraft") || !e.getChannel().equals(DCBridge.getChannel())) return;
 
         Member member = e.getMember();
         if (member == null || member.getUser().isBot() || member.getUser().isSystem()) return;
@@ -27,14 +27,12 @@ public class Discord extends ListenerAdapter {
         String msg = e.getMessage().getContentDisplay();
         if (msg.isEmpty()) return;
 
-        String name = bridge.configBool("discord.useMemberNameColor") ? "<color:" + Util.getMemberHEXColor(member) + ">" + member.getEffectiveName() + "</color>" : member.getEffectiveName();
-
-        Component formatted = DCBridge.mm.deserialize(bridge.configString("format.dcPrefix") + " " + bridge.configString("format.dc")
-                .replace("(user)", name)
+        Component formatted = GenericHelper.miniMessage.deserialize(DCBridge.configString("format.dcPrefix") + " " + DCBridge.configString("format.dc")
+                .replace("(user)", MemberHelper.getCoolName(member))
                 .replace("(msg)", msg));
 
-        DCBridge.bukkitAud.players().sendMessage(formatted);
-        DCBridge.console.sendMessage(formatted);
+        GenericHelper.audience.players().sendMessage(formatted);
+        DCBridge.log(formatted);
     }
 
     @Override
@@ -51,7 +49,7 @@ public class Discord extends ListenerAdapter {
 
     @Override
     public void onGenericCommandInteraction(@NotNull GenericCommandInteractionEvent e) {
-        CommandPlate cmd = CommandManager.list().get(e.getName());
+        CommandPlate cmd = DCBridge.getCommandMap().get(e.getName());
         if (cmd != null) cmd.interaction(e);
     }
 }
