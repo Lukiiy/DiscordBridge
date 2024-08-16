@@ -1,7 +1,7 @@
 discord:
   token: ''
   channelId: 1234567890123456789
-  consoleAdminRoleId: 1234567890123456789
+  consoleRoleId: 1234567890123456789
   activity: "playing Minecraft" # Must start with streaming/competing/listening/playing. Ex: "streaming Minecraft"
   status: "ONLINE" # Must be online/idle/do_not_disturb/invisible
   chatToMinecraft: true

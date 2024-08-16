@@ -16,7 +16,6 @@ import org.bukkit.event.server.BroadcastMessageEvent;
 public class Default implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void chat(AsyncPlayerChatEvent e) {
-        if (!DCBridge.configBool("discord.chatToMinecraft")) return;
         DCBridge.sendDCMsg(DCBridge.configString("format.mc")
                 .replace("(user)", e.getPlayer().getName())
                 .replace("(msg)", e.getMessage())

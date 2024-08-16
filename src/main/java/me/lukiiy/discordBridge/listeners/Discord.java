@@ -15,11 +15,9 @@ import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
 public class Discord extends ListenerAdapter {
-    DCBridge bridge = DCBridge.getInstance();
-
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent e) {
-        if (!DCBridge.configBool("discordToMinecraft") || !e.getChannel().equals(DCBridge.getChannel())) return;
+        if (!DCBridge.configBool("discord.chatToMinecraft") || !e.getChannel().equals(DCBridge.getChannel())) return;
 
         Member member = e.getMember();
         if (member == null || member.getUser().isBot() || member.getUser().isSystem()) return;

@@ -7,20 +7,21 @@ import me.lukiiy.discordBridge.cmds.Reload;
 import me.lukiiy.discordBridge.discordCmds.Console;
 import me.lukiiy.discordBridge.listeners.Default;
 import me.lukiiy.discordBridge.listeners.Discord;
+import me.lukiiy.discordBridge.util.BotHelper;
 import me.lukiiy.discordBridge.util.GenericHelper;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import net.dv8tion.jda.internal.utils.JDALogger;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +29,6 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-@Getter
 public final class DCBridge extends JavaPlugin {
     @Getter private static DCBridge instance;
     
@@ -38,9 +38,9 @@ public final class DCBridge extends JavaPlugin {
 
     public static Role consoleAdminRole;
 
+    private FileConfiguration config;
     private static Audience console;
     private static final Map<String, CommandPlate> commands = new HashMap<>();
-
 
     @Override
     public void onEnable() {
@@ -55,10 +55,10 @@ public final class DCBridge extends JavaPlugin {
             return;
         }
 
-        startBot(token);
-
         console = GenericHelper.audience.console();
-        DCBridge.addCommand(new Console());
+
+        JDALogger.setFallbackLoggerEnabled(false);
+        startBot(token);
 
         getServer().getPluginManager().registerEvents(new Default(), this);
         bot.addEventListener(new Discord());
@@ -68,13 +68,48 @@ public final class DCBridge extends JavaPlugin {
 
         sendDCMsg(configString("msg.serverStart"));
 
-        Bukkit.getScheduler().runTaskLater(this, () -> guild.updateCommands().addCommands(commands.values().stream().map(CommandPlate::command).toList()).queue(), 20L);
+        consoleAdminRole = guild.getRoleById(configLong("discord.consoleRoleId"));
+        if (consoleAdminRole != null) addCommand(new Console());
+
+        Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> guild.updateCommands().addCommands(commands.values().stream().map(CommandPlate::command).toList()).queue(), 20L);
     }
 
     @Override
     public void onDisable() {
         stopBot();
         if (GenericHelper.audience != null) GenericHelper.audience.close();
+    }
+
+    private void startBot(@NotNull String token) {
+        try {
+            bot = JDABuilder.createDefault(token)
+                    .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS)
+                    .disableCache(CacheFlag.CLIENT_STATUS, CacheFlag.FORUM_TAGS, CacheFlag.ONLINE_STATUS, CacheFlag.ACTIVITY, CacheFlag.VOICE_STATE, CacheFlag.ROLE_TAGS)
+                    .setStatus(BotHelper.getStatus(configString("discord.status")))
+                    .setActivity(BotHelper.getActivity(configString("discord.activity")))
+                    .build().awaitReady();
+
+            channel = bot.getTextChannelById(configLong("discord.channelId"));
+            if (channel != null) guild = channel.getGuild();
+        }
+        catch (InterruptedException err) {log("Something has been interrupted... " + err.getMessage());}
+
+        if (bot == null || channel == null) getServer().getPluginManager().disablePlugin(this);
+    }
+
+    public void stopBot() {
+        if (bot != null) {
+            sendDCMsg(configString("msg.serverStop"), instance.channel);
+            guild.updateCommands().queue();
+            bot.shutdown();
+            try {
+                if (!bot.awaitShutdown(Duration.ofSeconds(3))) {
+                    bot.shutdownNow();
+                    bot.awaitShutdown();
+                }
+            } catch (InterruptedException err) {log("Something has been interrupted... " + err.getMessage());}
+            bot = null;
+        }
     }
 
     public static JDA getJDA() {return instance.bot;}
@@ -84,14 +119,14 @@ public final class DCBridge extends JavaPlugin {
     // Config
     public void setupConfig() {
         saveDefaultConfig();
-        getConfig();
-        getConfig().options().copyDefaults(true);
+        config = getConfig();
+        config.options().copyDefaults(true);
         saveConfig();
     }
 
-    public static String configString(String path) {return instance.getConfig().getString(path);}
-    public static boolean configBool(String path) {return instance.getConfig().getBoolean(path, true);}
-    public static long configLong(String path) {return instance.getConfig().getLong(path);}
+    public static String configString(String path) {return instance.config.getString(path);}
+    public static boolean configBool(String path) {return instance.config.getBoolean(path, true);}
+    public static long configLong(String path) {return instance.config.getLong(path);}
 
     // Extras
     public static void sendDCMsg(@NotNull String msg) {sendDCMsg(msg, instance.channel);}
@@ -103,63 +138,7 @@ public final class DCBridge extends JavaPlugin {
     public static void log(String info) {log(Component.text(info));}
     public static void log(Component info) {console.sendMessage(info);}
 
-    private void startBot(@NotNull String token) {
-        try {
-            bot = JDABuilder.createDefault(token)
-                    .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS)
-                    .disableCache(CacheFlag.CLIENT_STATUS, CacheFlag.FORUM_TAGS, CacheFlag.ONLINE_STATUS, CacheFlag.ACTIVITY, CacheFlag.VOICE_STATE, CacheFlag.ROLE_TAGS)
-                    .build().awaitReady();
-            
-            channel = bot.getTextChannelById(configLong("discord.channelId"));
-            if (channel != null) {
-                guild = channel.getGuild();
-                consoleAdminRole = guild.getRoleById(configLong("discord.consoleAdminRoleId"));
-            }
-        }
-        catch (Throwable err) {err.printStackTrace();}
-
-        if (bot == null || channel == null) {
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-
-        setupPresence(configString("discord.status"), configString("discord.activity"));
-    }
-    
-    public void stopBot() {
-        if (bot != null) {
-            sendDCMsg(configString("msg.serverStop"), instance.channel);
-            guild.updateCommands().queue();
-            bot.shutdown();
-            try {
-                if (!bot.awaitShutdown(Duration.ofSeconds(3))) {
-                    bot.shutdownNow();
-                    bot.awaitShutdown();
-                }
-            } catch (Throwable e) {e.printStackTrace();}
-            bot = null;
-        }
-    }
-    
-    private void setupPresence(@NotNull String status, @NotNull String activity) {
-        OnlineStatus presence = OnlineStatus.ONLINE;
-        try {presence = OnlineStatus.valueOf(status);}
-        catch (Throwable ignored) {}
-
-        bot.getPresence().setStatus(presence);
-        if (activity.isEmpty()) return;
-
-        String[] parts = activity.split("\\s+", 2);
-        String doingWhat = parts.length > 1 ? parts[1] : activity;
-
-        Activity.ActivityType type = Activity.ActivityType.PLAYING;
-        try {type = Activity.ActivityType.valueOf(parts[0].toUpperCase());}
-        catch (Throwable ignored) {}
-
-        bot.getPresence().setActivity(Activity.of(type, doingWhat));
-    }
-
-    // Commands
+    // Addons?
     public static Map<String, CommandPlate> getCommandMap() {return commands;}
     public static void addCommand(CommandPlate cmd) {commands.put(cmd.command().getName(), cmd);}
 }
