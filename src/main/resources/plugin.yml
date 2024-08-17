@@ -1,5 +1,5 @@
 name: DiscordBridge
-version: '${project.version}'
+version: '1.0-SNAPSHOT'
 main: me.lukiiy.discordBridge.DCBridge
 api-version: '1.16'
 prefix: DCBridge
