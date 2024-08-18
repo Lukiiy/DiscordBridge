@@ -1,8 +1,13 @@
-name: BetaDiscordBridge
-version: '${project.version}'
-main: me.lukiiy.betadiscordbridge.DiscordBridge
-author: Lukiiy
+name: DiscordBridge
+version: '1.0-SNAPSHOT'
+main: me.lukiiy.discordBridge.DCBridge
+authors: [Lukiiy]
+description: A somewhat functional plugin to link Discord & Minecraft. (b1.7.3)
 commands:
   discordbridge:
-    description: "Reloads the plugin"
-    permission: discordbridge.reload
+    description: Reloads the plugin
+    permission: dcbridge.reload
+  discordbroadcast:
+    description: Broadcasts a message to discord
+    permission: dcbridge.broadcast
+    aliases: [dcbcast, dcb, dccast]

@@ -1,10 +1,6 @@
-# DiscordBridge (for b1.7.3)
+# DiscordBridge (b1.7.3)
 
-> Minecraft b1.7.3 CraftBukkit Plugin (it also works on later versions, like 1.0)
+> Tested on CraftBukkit 1060 (Poseidon fork)
 ---
 
-Creates a chat bridge between Discord & Minecraft.
-
-| Command         |    Description     |           Permission |
-|:----------------|:------------------:|---------------------:|
-| `discordbridge` | Reloads the plugin | discordbridge.reload |
+[Please refer to the main branch's README :)](https://github.com/Lukiiy/DiscordBridge/blob/main/README.md)
