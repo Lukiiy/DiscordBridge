@@ -1,10 +1,6 @@
 # DiscordBridge
 
-> Minecraft 1.16.5+ SpigotMC Plugin
+> The branch used in Github Page
 ---
 
-Creates a chat bridge between Discord & Minecraft.
-
-| Command         |    Description     |           Permission |
-|:----------------|:------------------:|---------------------:|
-| `discordbridge` | Reloads the plugin | discordbridge.reload |
+*This is cool*

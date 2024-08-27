@@ -1,0 +1,70 @@
+@font-face {
+  font-family: Minecraft;
+  src: url(assets/Minecraft.otf); /* https://github.com/IdreesInc/Minecraft-Font */
+}
+
+html {color-scheme: dark;}
+
+body {
+  font-family: Minecraft, Noto Sans, sans-serif;
+  text-shadow: 0 2pt #0007;
+  letter-spacing: -.4pt;
+  background: #1F2836;
+  color: #fff;
+  position: relative;
+}
+
+main {
+  width: min(80ch, 100% - 4rem);
+  margin-inline: auto;
+  padding: 30px;
+  text-align: center;
+  font-weight: normal;
+}
+
+h1 {
+  font-size: 30pt;
+  text-shadow: 0 4pt #0007;
+}
+
+.cmd {
+  content: url(assets/commands.webp);
+  position: fixed;
+  pointer-events: none;
+  z-index: -1;
+  width: 128px;
+  image-rendering: pixelated;
+}
+
+.fun1 {
+  top: 0;
+  left: 0;
+}
+
+.fun2 {
+  bottom: 0;
+  right: 0;
+  transform: scaleX(-1);
+}
+
+.bridge {
+  display: flex;
+  place-items: center;
+  justify-content: center;
+  gap: 1em;
+}
+
+.bridge img {
+  aspect-ratio: 1/1;
+  width: 128px;
+  border-radius: 100%;
+}
+
+a {text-decoration: none;}
+a:hover {filter: brightness(1.125);}
+
+small {
+  opacity: .5;
+  text-shadow: none;
+  font-style: italic;
+}
