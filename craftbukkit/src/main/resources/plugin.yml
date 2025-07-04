@@ -1,0 +1,11 @@
+name: ${name}
+version: ${version}
+main: me.lukiiy.discordBridge.DiscordBridge
+load: STARTUP
+authors: [Lukiiy]
+description: ${desc}
+website: ${web}
+commands:
+  discordbridge:
+    aliases: [dcbridge]
+    permission: dcbridge.cmd

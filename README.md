@@ -1,26 +1,29 @@
 # DiscordBridge
 
-> Minecraft 1.16.5+ Spigot/Paper Plugin  
-> *Requires Java 17 or higher.*
+> Minecraft 1.16.5+ Spigot Plugin | 1.20.6+ Paper/Folia Plugin | Craftbukkit 1060 (b1.7.3) Plugin  
 ---
 
-Creates a chat bridge between Discord & Minecraft.
+A somewhat cool plugin that creates a chat bridge between Discord & Minecraft.
 
-| Command            |           Description           |         Permission |
-|:-------------------|:-------------------------------:|-------------------:|
-| `discordbroadcast` | Broadcasts a message to Discord | dcbridge.broadcast |
-| `discordbridge`    |       Reloads the plugin        |    dcbridge.reload |
+| Command | Description | Permission |
+|:---|:---:|---:|
+| `discordbridge` | Main command, with many subcommands! | dcbridge.reload |
 
-### Discord features
+> [!IMPORTANT]  
+> [how 2 setup](https://github.com/Lukiiy/DiscordBridge/wiki/Setup)
+
+## Discord features
 
 | Command         |          Description          |        Roles |
 |:----------------|:-----------------------------:|-------------:|
 | `console`       | Executes a command as console |      Console |
 
-## Here, have some tutorials!
+### Currently implemented hooks
 
-[how 2 setup](https://github.com/Lukiiy/DiscordBridge/wiki/Setup)
+**Spigot:** PlaceholderAPI  
+**Paper:** PlaceholderAPI, Advancements, Folia
 
 ### For developers
 
-You can use the .jar file as a dependency.
+Feel free to make your own addons. For an example, refer to [DCBridge-Advancements](https://github.com/Lukiiy/DCBridge-Advancements).
+You can use the **.jar** file as a dependency.

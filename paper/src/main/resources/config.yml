@@ -1,0 +1,23 @@
+discord:
+  token: ''
+  channelId: 1234567890123456789
+  consoleRoleId: 1234567890123456789
+  activity: "playing Minecraft" # Must start with streaming/competing/listening/playing. Ex: "streaming Minecraft"
+  status: "ONLINE" # Must be online/idle/do_not_disturb/invisible
+  playerEvents: true # Toggles join/quit/death/broadcast messages
+  useMemberNameColor: true # Allows the messages to use the discord user's name color
+  ignoreBots: false # Toggles whether the plugin should display messages from discord bots in Minecraft.
+
+messages: # Blank to disable
+  discord:
+    start: "**Server online!**"
+    stop: "**Server offline!**"
+    format: "<(user)> (msg)" # Minecraft -> Discord
+  minecraft: # Formatted with MiniMessage (https://docs.advntr.dev/minimessage/format.html)
+    prefix: "<hover:show_text:'<blue>User: (userid)<newline>Message ID: (id)</blue>'><click:suggest_command:(id)><c:#647ff8>[Discord]</c></click></hover>" # Prefix used in Discord messages
+    format: "(user):(reply) (msg)" # Discord -> Minecraft
+    threadCreation: "<c:#cf6eff>A new thread \"(name)\" has been created!</c>"
+    userJoin: "<yellow>(user) has joined the discord server!</yellow>"
+    reply:
+      default: "<i><c:#7175a3>└ (user)</c></i>"
+      ignoreBot: true # Will not display the reply part if the user is replying to the bot
