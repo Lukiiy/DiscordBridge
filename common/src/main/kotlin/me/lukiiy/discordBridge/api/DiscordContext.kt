@@ -100,7 +100,10 @@ class DiscordContext(val bot: JDA, val guild: Guild, val channel: TextChannel, v
     /**
      * Reloads the registered commands
      */
-    fun reloadCommands() = guild.updateCommands().addCommands(commands.values.map { it.command() }).queue()
+    fun reloadCommands() {
+        if (bot.status == JDA.Status.SHUTTING_DOWN || bot.status == JDA.Status.SHUTDOWN) return
+        guild.updateCommands().addCommands(commands.values.map { it.command() }).queue()
+    }
 
     /**
      * Unregisters every command from the bot instance (on Discord)
@@ -116,7 +119,7 @@ class DiscordContext(val bot: JDA, val guild: Guild, val channel: TextChannel, v
      */
     @Throws(InterruptedException::class)
     fun shutdown() {
-        clearCommands()
+        // clearCommands()
         bot.shutdown()
 
         try {

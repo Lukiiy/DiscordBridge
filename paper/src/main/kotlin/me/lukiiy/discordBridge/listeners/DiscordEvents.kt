@@ -72,25 +72,9 @@ class DiscordEvents : ListenerAdapter() {
         }
     }
 
-    override fun onReady(e: ReadyEvent) {
-        getInstance().logger.info("It's working!")
-    }
-
-    override fun onSessionDisconnect(e: SessionDisconnectEvent) {
-        if (e.closeCode == null) return
-
-        getInstance().logger.warning("Session disconnected... Error code: " + e.closeCode!!.code)
-    }
-
-    override fun onSessionResume(e: SessionResumeEvent) {
-        getInstance().logger.info("It's working again!")
-    }
-
     override fun onGenericCommandInteraction(e: GenericCommandInteractionEvent) {
         val instance = getInstance()
-
-        val cmd = instance.context!!.getCommand(e.name)
-        if (cmd == null) return
+        val cmd = instance.context!!.getCommand(e.name) ?: return
 
         cmd.interaction(e)
         instance.logger.info(PlainTextComponentSerializer.plainText().serialize(MINI.deserialize("[Discord] " + instance.miniSerializableName(e.member!!) + " issued server command: /" + e.getFullCommandName())))
@@ -98,10 +82,11 @@ class DiscordEvents : ListenerAdapter() {
 
     override fun onThreadMemberJoin(e: ThreadMemberJoinEvent) {
         val thread = e.getThread()
-        if (!thread.isPublic() || thread.isArchived) return
+        if (!thread.isPublic || thread.isArchived) return
+
+        val instance = getInstance()
 
         if (Duration.between(thread.timeCreated, OffsetDateTime.now()).toMinutes() < 1) {
-            val instance = getInstance()
             val msg = MINI.deserialize(instance.getConfig().getString("messages.minecraft.threadCreation")?.replace("(name)", thread.name) ?: "")
             if (msg == Component.empty()) return
 

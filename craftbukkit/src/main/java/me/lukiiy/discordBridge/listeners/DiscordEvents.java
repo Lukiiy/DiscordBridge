@@ -81,23 +81,6 @@ public class DiscordEvents extends ListenerAdapter {
     }
 
     @Override
-    public void onReady(@NotNull ReadyEvent e) {
-        DiscordBridge.getInstance().getServer().getLogger().info("It's working!");
-    }
-
-    @Override
-    public void onSessionDisconnect(@NotNull SessionDisconnectEvent e) {
-        if (e.getCloseCode() == null) return;
-
-        DiscordBridge.getInstance().getServer().getLogger().warning("Session disconnected... Error code: " + e.getCloseCode().getCode());
-    }
-
-    @Override
-    public void onSessionResume(@NotNull SessionResumeEvent e) {
-        DiscordBridge.getInstance().getServer().getLogger().info("It's working again!");
-    }
-
-    @Override
     public void onThreadMemberJoin(@NotNull ThreadMemberJoinEvent e) {
         ThreadChannel thread = e.getThread();
         if (!thread.isPublic() || thread.isArchived()) return;

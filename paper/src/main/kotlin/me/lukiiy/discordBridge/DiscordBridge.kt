@@ -40,15 +40,17 @@ class DiscordBridge : JavaPlugin() {
     }
 
     override fun onDisable() {
-        if (context == null) return
+        context?.apply {
+            sendMessage(config.getString("messages.discord.stop", "")!!)
 
-        context!!.sendMessage(config.getString("messages.discord.stop", "")!!)
-
-        try {
-            context!!.shutdown()
-        } catch (e: InterruptedException) {
-            logger.severe(e.message)
+            try {
+                shutdown()
+            } catch (e: InterruptedException) {
+                logger.severe(e.message)
+            }
         }
+
+        context = null
     }
 
     companion object {
@@ -60,8 +62,8 @@ class DiscordBridge : JavaPlugin() {
     private fun initBot(token: String) {
         try {
             context = init(token, config.getLong("discord.channelId"), config.getLong("discord.consoleRoleId")).apply {
-                bot.presence.setPresence(OnlineStatus.fromKey(getConfig().getString("discord.status", "")!!), BotHelper.getActivity(getConfig().getString("discord.activity", "")!!))
-                sendMessage(getConfig().getString("messages.discord.start", "")!!)
+                bot.presence.setPresence(OnlineStatus.fromKey(config.getString("discord.status", "")!!), BotHelper.getActivity(config.getString("discord.activity", "")!!))
+                sendMessage(config.getString("messages.discord.start", "")!!)
                 bot.addEventListener(DiscordEvents())
 
                 if (consoleAdminRole != null) addCommands(Console())
@@ -85,6 +87,7 @@ class DiscordBridge : JavaPlugin() {
     // Hooks
     fun parsePlaceholders(player: Player?, message: String?): String? {
         if (!placeholderAPIHook || player == null || message == null) return message
+
         return PlaceholderAPI.setPlaceholders(player, message)
     }
 
@@ -94,5 +97,4 @@ class DiscordBridge : JavaPlugin() {
     } catch (_: ClassNotFoundException) {
         false
     }
-
 }
