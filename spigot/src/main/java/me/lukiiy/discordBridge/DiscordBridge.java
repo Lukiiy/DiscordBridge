@@ -13,6 +13,8 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Member;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -103,6 +105,11 @@ public class DiscordBridge extends JavaPlugin {
 
     public String miniSerializableName(Member member) {
         return getConfig().getBoolean("discord.useMemberNameColor") ? "<color:" + MemberHelper.getHexColor(member) + ">" + member.getEffectiveName() + "</color>" : member.getEffectiveName();
+    }
+
+    public void commonSend(Component msg) {
+        getAudiences().players().sendMessage(msg);
+        getLogger().info(PlainTextComponentSerializer.plainText().serialize(msg));
     }
 
     // Config

@@ -8,7 +8,9 @@ import me.lukiiy.discordBridge.api.serialize.DSerial;
 import me.lukiiy.discordBridge.event.BridgeDiscordReceiveEvent;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
@@ -64,8 +66,7 @@ public class DiscordEvents extends ListenerAdapter {
 
             String formatted = parts.getPrefix() + DSerial.fromDiscord(parts.getContent()) + DSerial.listAttachments(msg.get()).stream().collect(Collectors.joining(" ", " ", ""));
 
-            instance.getServer().broadcastMessage(formatted);
-            instance.getServer().getLogger().info(formatted);
+            instance.commonSend(formatted);
         });
     }
 
@@ -88,10 +89,26 @@ public class DiscordEvents extends ListenerAdapter {
         if (Duration.between(thread.getTimeCreated(), OffsetDateTime.now()).toMinutes() < 1) {
             DiscordBridge instance = DiscordBridge.getInstance();
             String msg = instance.getConfiguration().getString("msg.threadCreation");
-            if (msg == null || msg.isEmpty()) return;
+            if (msg == null || DiscordBridge.isBlank(msg)) return;
 
-            instance.getServer().getLogger().info(msg);
-            instance.getServer().broadcastMessage(msg);
+            msg = msg.replace("(name)", thread.getName());
+
+            instance.commonSend(msg);
+        }
+    }
+
+    @Override
+    public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent e) {
+        TextChannel sysChannel = e.getGuild().getSystemChannel();
+        DiscordBridge instance = DiscordBridge.getInstance();
+
+        if (sysChannel != null && sysChannel == instance.getContext().getChannel()) {
+            String msg = instance.getConfiguration().getString("messages.minecraft.userJoin");
+            if (msg == null || DiscordBridge.isBlank(msg)) return;
+
+            msg = msg.replace("(user)", e.getMember().getEffectiveName());
+
+            instance.commonSend(msg);
         }
     }
 }

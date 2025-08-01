@@ -119,7 +119,8 @@ public final class DiscordBridge extends JavaPlugin {
 
         config.getString("messages.minecraft.prefix", "§9[Discord]§f");
         config.getString("messages.minecraft.format", "(user):(reply) (msg)");
-        config.getString("messages.minecraft.threadCreation", "A new thread \"(name)\" has been created!");
+        config.getString("messages.minecraft.threadCreation", "§dA new thread \"(name)\" has been created!");
+        config.getString("messages.minecraft.userJoin", "§e(user) has joined the discord server!");
         config.getString("messages.minecraft.reply.default", "\\ (user)");
         config.getBoolean("messages.minecraft.reply.ignoreBot", true);
 
@@ -132,5 +133,15 @@ public final class DiscordBridge extends JavaPlugin {
         } catch (NumberFormatException e) {
             return 0L;
         }
+    }
+
+    public void commonSend(String msg) {
+        getServer().broadcastMessage(msg);
+        getServer().getLogger().info(msg);
+    }
+
+    // Java backports
+    public static boolean isBlank(String input) {
+        return input == null || input.isEmpty() || input.chars().allMatch(Character::isWhitespace);
     }
 }

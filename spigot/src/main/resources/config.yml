@@ -17,6 +17,7 @@ messages: # Blank to disable
     prefix: "<hover:show_text:'<blue>User: (userid)<newline>Message ID: (id)</blue>'><click:suggest_command:(id)><c:#647ff8>[Discord]</c></click></hover>" # Prefix used in Discord messages
     format: "(user):(reply) (msg)" # Discord -> Minecraft
     threadCreation: "<c:#cf6eff>A new thread \"(name)\" has been created!</c>"
+    userJoin: "<yellow>(user) has joined the discord server!</yellow>"
     reply:
       default: "<i><c:#7175a3>└ (user)</c></i>"
       ignoreBot: true # Will not display the reply part if the user is replying to the bot

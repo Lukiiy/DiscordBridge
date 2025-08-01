@@ -71,8 +71,7 @@ public class DiscordEvents extends ListenerAdapter {
             Component content = DSerialAdvnt.fromDiscord(parts.getContent());
             Component formatted = Component.empty().append(prefix).append(content).appendSpace().append(Component.join(JoinConfiguration.spaces(), DSerialAdvnt.listAttachments(msg.get())));
 
-            instance.getAudiences().players().sendMessage(formatted);
-            instance.getLogger().info(PlainTextComponentSerializer.plainText().serialize(formatted));
+            instance.commonSend(formatted);
         });
     }
 
@@ -99,8 +98,7 @@ public class DiscordEvents extends ListenerAdapter {
 
             Component fMsg = DSerialAdvnt.getMINI().deserialize(msg.replace("(name)", thread.getName()));
 
-            instance.getAudiences().players().sendMessage(fMsg);
-            instance.getLogger().info(PlainTextComponentSerializer.plainText().serialize(fMsg));
+            instance.commonSend(fMsg);
         }
     }
 
@@ -115,8 +113,7 @@ public class DiscordEvents extends ListenerAdapter {
 
             Component fMsg = DSerialAdvnt.getMINI().deserialize(msg.replace("(name)", instance.miniSerializableName(e.getMember())));
 
-            instance.getAudiences().players().sendMessage(fMsg);
-            instance.getLogger().info(PlainTextComponentSerializer.plainText().serialize(fMsg));
+            instance.commonSend(fMsg);
         }
     }
 }
