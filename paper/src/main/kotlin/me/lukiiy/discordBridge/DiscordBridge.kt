@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.entities.Member
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
+import java.time.Duration
 
 class DiscordBridge : JavaPlugin() {
     var context: DiscordContext? = null
@@ -42,15 +43,8 @@ class DiscordBridge : JavaPlugin() {
     override fun onDisable() {
         context?.apply {
             sendMessage(config.getString("messages.discord.stop", "")!!)
-
-            try {
-                shutdown()
-            } catch (e: InterruptedException) {
-                logger.severe(e.message)
-            }
+            complexShutdown(Duration.ofSeconds(config.getLong("discord.shutdownLimit", 3)), if (isFolia()) 500 else 2000)
         }
-
-        context = null
     }
 
     companion object {
