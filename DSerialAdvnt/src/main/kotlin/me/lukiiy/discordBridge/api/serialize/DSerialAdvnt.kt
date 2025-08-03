@@ -1,16 +1,11 @@
 package me.lukiiy.discordBridge.api.serialize
 
-import me.lukiiy.discordBridge.BridgeDefaults
 import me.lukiiy.discordBridge.api.serialize.DSerialAdvnt.fromDiscord
 import me.lukiiy.discordBridge.api.serialize.DSerialAdvnt.toDiscord
 import net.dv8tion.jda.api.entities.Message
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TextComponent
-import net.kyori.adventure.text.TranslatableComponent
 import net.kyori.adventure.text.event.ClickEvent
-import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextColor
-import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
@@ -40,27 +35,13 @@ object DSerialAdvnt {
      */
     @JvmStatic
     fun toDiscord(component: Component): String {
-        val parts = mutableListOf<Pair<String, Set<TextDecoration>>>()
+        var mini = MINI.serialize(component)
 
-        component.iterateStyled { text, style ->
-            if (text.isNotEmpty()) parts.add(text to TextDecoration.entries.filter { style.hasDecoration(it) }.toSet())
+        styles.forEach { (tag, markdown) -> // replace formatting tags with markdown
+            mini = mini.replace("<$tag>", markdown).replace("</$tag>", markdown)
         }
 
-        return buildString {
-            var i = 0
-
-            while (i < parts.size) {
-                val (text, decs) = parts[i]
-                val grouped = StringBuilder(text)
-
-                while (i + 1 < parts.size && parts[i + 1].second == decs) grouped.append(parts[++i].first)
-
-                val tags = decs.mapNotNull { styles[it.name.lowercase()] }
-                append(tags.joinToString("") + grouped + tags.reversed().joinToString(""))
-
-                i++
-            }
-        }
+        return PlainTextComponentSerializer.plainText().serialize(MINI.deserialize(mini))
     }
 
     /**
@@ -75,15 +56,21 @@ object DSerialAdvnt {
      * @see [toDiscord]
      * @return A component
      */
-    @JvmStatic fun fromDiscord(s: String): Component = MINI.deserialize(regex.replace(s) { match -> reverseStyles[match.groupValues[1]]?.let { "<$it>${match.groupValues[2]}</$it>" } ?: match.value })
+    @JvmStatic
+    fun fromDiscord(string: String): Component {
+        var input = string
 
-    private fun Component.iterateStyled(consumer: (String, Style) -> Unit) {
-        when (this) {
-            is TextComponent -> consumer(content(), style())
-            is TranslatableComponent -> consumer(key(), style())
+        input = input.replace(Regex("""\|\|(.+?)\|\|""")) { // add hover text to obfuscated text
+            val text = it.groupValues[1]
+
+            "<hover:show_text:'$text'><obfuscated>$text</obfuscated></hover>"
         }
 
-        children().forEach { it.iterateStyled(consumer) }
+        input = regex.replace(input) { // replace markdown with formatting tags
+            reverseStyles[it.groupValues[1]]?.let { tag -> "<$tag>${it.groupValues[2]}</$tag>" } ?: it.value
+        }
+
+        return MINI.deserialize(input)
     }
 
     /**
@@ -107,7 +94,7 @@ object DSerialAdvnt {
     }
 
     // Colors from BridgeDefaults
-    @JvmStatic val bridgeBlue = TextColor.fromHexString(BridgeDefaults.HEX_PRIMARY)
-    @JvmStatic val bridgeFaint = TextColor.fromHexString(BridgeDefaults.FAINTED)
-    @JvmStatic val bridgeList = TextColor.fromHexString(BridgeDefaults.LIST)
+    @JvmStatic val bridgeBlue = TextColor.fromHexString("#647ff8")
+    @JvmStatic val bridgeFaint = TextColor.fromHexString("#7175a3")
+    @JvmStatic val bridgeList = TextColor.fromHexString("#6d7494")
 }

@@ -32,9 +32,9 @@ public final class DiscordBridge extends JavaPlugin {
         logger = getServer().getLogger();
 
         PlayerEvents pListener = new PlayerEvents();
-        pluginManager.registerEvent(Event.Type.PLAYER_JOIN, pListener, Event.Priority.Highest, this);
-        pluginManager.registerEvent(Event.Type.PLAYER_QUIT, pListener, Event.Priority.Highest, this);
-        pluginManager.registerEvent(Event.Type.PLAYER_CHAT, pListener, Event.Priority.Highest, this);
+        pluginManager.registerEvent(Event.Type.PLAYER_JOIN, pListener, Event.Priority.Monitor, this);
+        pluginManager.registerEvent(Event.Type.PLAYER_QUIT, pListener, Event.Priority.Monitor, this);
+        pluginManager.registerEvent(Event.Type.PLAYER_CHAT, pListener, Event.Priority.Monitor, this);
 
         getCommand("discordbridge").setExecutor(new Main());
 

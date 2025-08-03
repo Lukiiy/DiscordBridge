@@ -17,7 +17,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.BroadcastMessageEvent;
 
 public class DefaultEvents implements Listener {
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void chat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
         DiscordBridge instance = DiscordBridge.getInstance();
@@ -33,22 +33,22 @@ public class DefaultEvents implements Listener {
         });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void join(PlayerJoinEvent e) {
         send(e.getPlayer(), e.getJoinMessage(), false);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void quit(PlayerQuitEvent e) {
         send(e.getPlayer(), e.getQuitMessage(), false);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void death(PlayerDeathEvent e) {
         send(e.getEntity(), e.getDeathMessage(), false);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void bcast(BroadcastMessageEvent e) {
         send(null, e.getMessage(), false);
     }

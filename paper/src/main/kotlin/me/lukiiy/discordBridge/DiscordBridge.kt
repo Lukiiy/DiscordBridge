@@ -3,6 +3,7 @@ package me.lukiiy.discordBridge
 import me.clip.placeholderapi.PlaceholderAPI
 import me.lukiiy.discordBridge.api.DiscordContext
 import me.lukiiy.discordBridge.api.DiscordContext.Companion.init
+import me.lukiiy.discordBridge.api.serialize.DSerialAdvnt
 import me.lukiiy.discordBridge.discordCmds.Console
 import me.lukiiy.discordBridge.listeners.DefaultEvents
 import me.lukiiy.discordBridge.listeners.DiscordEvents
