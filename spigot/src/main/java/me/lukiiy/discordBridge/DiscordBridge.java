@@ -18,6 +18,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
+import java.time.Duration;
+
 public class DiscordBridge extends JavaPlugin {
     private DiscordContext context;
     private BukkitAudiences audiences;
@@ -77,13 +79,12 @@ public class DiscordBridge extends JavaPlugin {
     @Override
     public void onDisable() {
         if (context != null) {
-            context.sendMessage(getConfig().getString("messages.discord.stop", ""));
+            if (getConfig().getBoolean("discord.clearCommandsWhenShutdown")) context.clearCommands();
 
-            try {
-                context.shutdown();
-            } catch (InterruptedException e) {
-                getLogger().severe(e.getMessage());
-            }
+            context.sendMessage(getConfig().getString("messages.discord.stop", ""));
+            context.shutdown(Duration.ofSeconds(getConfig().getLong("discord.shutdownLimit", 3)));
+
+            context = null;
         }
 
         if (audiences != null) audiences.close();

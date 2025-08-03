@@ -42,9 +42,13 @@ class DiscordBridge : JavaPlugin() {
 
     override fun onDisable() {
         context?.apply {
+            if (config.getBoolean("discord.clearCommandsWhenShutdown")) clearCommands()
+
             sendMessage(config.getString("messages.discord.stop", "")!!)
-            complexShutdown(Duration.ofSeconds(config.getLong("discord.shutdownLimit", 3)), if (isFolia()) 500 else 2000)
+            shutdown(Duration.ofSeconds(config.getLong("discord.shutdownLimit", 3)), if (isFolia()) 500 else 2000)
         }
+
+        context = null
     }
 
     companion object {

@@ -117,29 +117,14 @@ class DiscordContext(val bot: JDA, val guild: Guild, val channel: TextChannel, v
     fun getCommand(name: String): CommandPlate? = commands[name]
 
     /**
-     * Stops and shutdowns the bot
-     */
-    fun shutdown() {
-        clearCommands()
-        bot.shutdown()
-
-        try {
-            if (!bot.awaitShutdown(Duration.ofSeconds(3))) {
-                bot.shutdownNow()
-                bot.awaitShutdown()
-            }
-        } catch (e: InterruptedException) { e.printStackTrace() }
-    }
-
-    /**
      * Stops and shutdowns the bot (hm.)
      */
-    fun complexShutdown(shutLimit: Duration = Duration.ofSeconds(3), threadWait: Long = 2000) { // TODO
+    @JvmOverloads
+    fun shutdown(shutLimit: Duration = Duration.ofSeconds(3), threadWait: Long = 2000) { // TODO
         if (!shutdown.compareAndSet(false, true)) return
 
         val shutThread = Thread({
             try {
-                clearCommands()
                 bot.shutdown()
 
                 if (!bot.awaitShutdown(shutLimit)) {

@@ -7,6 +7,8 @@ discord:
   playerEvents: true # Toggles join/quit/death/broadcast messages
   useMemberNameColor: true # Allows the messages to use the discord user's name color
   ignoreBots: false # Toggles whether the plugin should display messages from discord bots in Minecraft.
+  shutdownLimit: 3 # Time (in seconds) for the bot to be forcefully shutdown
+  clearCommandsWhenShutdown: true # Clears commands when the bot shuts down
 
 messages: # Blank to disable
   discord:
