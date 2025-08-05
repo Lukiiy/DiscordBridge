@@ -9,9 +9,6 @@ import me.lukiiy.discordBridge.api.serialize.DSerialAdvnt.fromDiscord
 import me.lukiiy.discordBridge.event.BridgeDiscordReceiveEvent
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.events.session.ReadyEvent
-import net.dv8tion.jda.api.events.session.SessionDisconnectEvent
-import net.dv8tion.jda.api.events.session.SessionResumeEvent
 import net.dv8tion.jda.api.events.thread.member.ThreadMemberJoinEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.kyori.adventure.text.Component
@@ -27,7 +24,7 @@ class DiscordEvents : ListenerAdapter() {
     override fun onMessageReceived(e: MessageReceivedEvent) {
         val instance = getInstance()
         val context = AtomicReference<DiscordContext?>(instance.context)
-        val config = instance.getConfig()
+        val config = instance.config
 
         if (e.getChannel() !== context.get()!!.channel) return
 
@@ -87,10 +84,10 @@ class DiscordEvents : ListenerAdapter() {
         val instance = getInstance()
 
         if (Duration.between(thread.timeCreated, OffsetDateTime.now()).toMinutes() < 1) {
-            val msg = MINI.deserialize(instance.getConfig().getString("messages.minecraft.threadCreation")?.replace("(name)", thread.name) ?: "")
+            val msg = MINI.deserialize(instance.config.getString("messages.minecraft.threadCreation")?.replace("(name)", thread.name) ?: "")
             if (msg == Component.empty()) return
 
-            instance.server.onlinePlayers.forEach { p: Player? -> p!!.sendMessage(msg) }
+            instance.server.onlinePlayers.forEach { it!!.sendMessage(msg) }
             instance.componentLogger.info(msg)
         }
     }

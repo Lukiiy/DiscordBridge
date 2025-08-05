@@ -35,8 +35,10 @@ object DSerial {
                 if (markdown != null) {
                     val start = i + 2
                     val end = input.indexOf('§', start).takeIf { it != -1 } ?: input.length
+
                     result.append(markdown).append(input.substring(start, end)).append(markdown)
                     i = end
+
                     continue
                 }
             }
@@ -53,11 +55,28 @@ object DSerial {
      * @return A legacy string
      */
     @JvmStatic
-    fun fromDiscord(input: String): String {
-        return regex.replace(input) { match ->
-            val code = reverseStyles[match.groupValues[1]] ?: return@replace match.value
-            "§$code$match.groupValues[2]§r"
+    fun fromDiscord(string: String): String {
+        val lightGray = "§7"
+        val gray = "§8"
+        var input = string
+
+        input = input.replace(Regex("""\|\|(.+?)\|\|""")) { "$lightGray!!§r§k${it.groupValues[1]}§r$lightGray!!§r" } // add hover text to obfuscated text
+
+        input = regex.replace(input) { // replace markdown with formatting tags
+            val code = reverseStyles[it.groupValues[1]] ?: return@replace it.value
+
+            "§$code${it.groupValues[2]}§r"
         }
+
+        // code blocks
+        input = input.replace(Regex("```([^`]+?)```")) { "$gray§o{{§r${it.groupValues[1]}$gray§o}}§r" }
+
+        // code
+        input = input.replace(Regex("`([^`]+?)`")) { "$gray{${it.groupValues[1]}$gray}§r" }
+
+        input = input.replace("\n", " ").ifBlank { "" }
+
+        return input
     }
 
     /**
@@ -66,7 +85,7 @@ object DSerial {
      * @return A list of somewhat usable information
      */
     @JvmStatic
-    fun listAttachments(message: Message): List<String> {
+    fun listAttachments(message: Message): List<String> { // TODO: Merge with #fromDiscord
         val result = mutableListOf<String>()
 
         message.attachments.forEach { result.add("§8[${it.fileName.substringAfterLast('.', "file")} file]§f") }

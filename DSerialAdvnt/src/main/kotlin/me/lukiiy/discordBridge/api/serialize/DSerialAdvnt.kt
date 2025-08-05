@@ -58,6 +58,8 @@ object DSerialAdvnt {
      */
     @JvmStatic
     fun fromDiscord(string: String): Component {
+        val lightGray = "#bfbfbf"
+        val gray = "#787878"
         var input = string
 
         input = input.replace(Regex("""\|\|(.+?)\|\|""")) { // add hover text to obfuscated text
@@ -70,6 +72,15 @@ object DSerialAdvnt {
             reverseStyles[it.groupValues[1]]?.let { tag -> "<$tag>${it.groupValues[2]}</$tag>" } ?: it.value
         }
 
+        // code blocks
+        input = input.replace(Regex("```([^`]+?)```")) { match -> "<c:$gray><i>{{</c>${match.groupValues[1]}<c:$gray>}}</i></c>" }
+
+        // code
+        input = input.replace(Regex("`([^`]+?)`")) { match -> "<c:$gray>{</c>${match.groupValues[1]}<c:$gray>}</c>" }
+
+        // replace new lines with nothing
+        input = input.replace("\n", " ").ifBlank { "" }
+
         return MINI.deserialize(input)
     }
 
@@ -79,7 +90,7 @@ object DSerialAdvnt {
      * @return A list of somewhat usable information
      */
     @JvmStatic
-    fun listAttachments(message: Message): List<Component> {
+    fun listAttachments(message: Message): List<Component> { // TODO: Merge with #fromDiscord
         val result = mutableListOf<Component>()
         val color = TextColor.color(0x40566b)
         val embeds = message.embeds

@@ -37,7 +37,7 @@ data class MessageParts(val prefix: String, val content: String) {
             } else ""
 
             val prefix = if (prefixFormat.isBlank()) "" else "${prefixFormat.replace("(userid)", member.id).replace("(id)", msg.id)} "
-            val content = format.replace("(user)", member.effectiveName).replace("(reply)", reply).replace("(msg)", msg.contentDisplay.replace("\n", " ").ifBlank { "" })
+            val content = format.replace("(user)", member.effectiveName).replace("(reply)", reply).replace("(msg)", msg.contentDisplay)
 
             return MessageParts(prefix, content)
         }
