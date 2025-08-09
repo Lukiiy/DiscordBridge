@@ -45,7 +45,7 @@ class DiscordBridge : JavaPlugin() {
             if (config.getBoolean("discord.clearCommandsWhenShutdown")) clearCommands()
 
             sendMessage(config.getString("messages.discord.stop", "")!!)
-            shutdown(Duration.ofSeconds(config.getLong("discord.shutdownLimit", 3)) )
+            shutdown(Duration.ofSeconds(config.getLong("discord.shutdownLimit", 3)), if (isFolia()) 500 else 2000)
         }
 
         context = null

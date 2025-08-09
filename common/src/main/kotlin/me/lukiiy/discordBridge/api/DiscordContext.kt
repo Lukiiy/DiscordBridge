@@ -120,11 +120,11 @@ class DiscordContext(val bot: JDA, val guild: Guild, val channel: TextChannel, v
      * Stops and shutdowns the bot
      */
     @JvmOverloads
-    fun shutdown(shutLimit: Duration = Duration.ofSeconds(5)) {
+    fun shutdown(shutLimit: Duration = Duration.ofSeconds(3), threadWait: Long = 2000) {
         if (!shutdown.compareAndSet(false, true)) return
         val id = bot.selfUser.id
 
-        Thread({
+        val shutThread = Thread({
             try {
                 bot.shutdown()
 
@@ -139,6 +139,12 @@ class DiscordContext(val bot: JDA, val guild: Guild, val channel: TextChannel, v
         }, "DCBridge-$id-Shutdown").apply {
             isDaemon = true
             start()
+        }
+
+        try {
+            shutThread.join(threadWait)
+        } catch (_: InterruptedException) {
+            Thread.currentThread().interrupt()
         }
     }
 
