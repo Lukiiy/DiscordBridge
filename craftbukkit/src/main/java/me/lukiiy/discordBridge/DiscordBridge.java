@@ -15,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.config.Configuration;
 
+import java.time.Duration;
 import java.util.logging.Logger;
 
 public final class DiscordBridge extends JavaPlugin {
@@ -81,13 +82,12 @@ public final class DiscordBridge extends JavaPlugin {
     @Override
     public void onDisable() {
         if (context != null) {
-            context.sendMessage(getConfiguration().getString("messages.discord.stop", ""));
+            if (getConfiguration().getBoolean("discord.shutdown.clearCommands", true)) context.clearCommands();
 
-            try {
-                context.shutdown();
-            } catch (InterruptedException e) {
-                logger.severe(e.getMessage());
-            }
+            context.sendMessage(getConfiguration().getString("messages.discord.stop", ""));
+            context.shutdown(Duration.ofSeconds(str2long(getConfiguration().getString("discord.shutdown.timeLimit", "3"))));
+
+            context = null;
         }
     }
 
@@ -112,6 +112,8 @@ public final class DiscordBridge extends JavaPlugin {
         config.getString("discord.status", "ONLINE");
         config.getBoolean("discord.playerEvents", true);
         config.getBoolean("discord.ignoreBots", false);
+        if (config.getProperty("discord.shutdown.timeLimit") == null) config.setProperty("discord.shutdown.timeLimit", 3);
+        config.getBoolean("discord.shutdown.clearCommands", true);
 
         config.getString("messages.discord.start", "**Server online!**");
         config.getString("messages.discord.stop", "**Server offline!**");

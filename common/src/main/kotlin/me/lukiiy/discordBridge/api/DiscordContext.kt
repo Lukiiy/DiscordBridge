@@ -12,12 +12,14 @@ import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.cache.CacheFlag
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Holder for common data like the bot instance, guild, channel and roles...
  */
 class DiscordContext(val bot: JDA, val guild: Guild, val channel: TextChannel, val consoleAdminRole: Role?) {
     private val commands: MutableMap<String, CommandPlate> = mutableMapOf()
+    private val shutdown = AtomicBoolean(false)
 
     companion object {
         private var inst: DiscordContext? = null
@@ -60,6 +62,7 @@ class DiscordContext(val bot: JDA, val guild: Guild, val channel: TextChannel, v
                 .setStatus(OnlineStatus.OFFLINE)
                 .setActivity(null)
                 .setMemberCachePolicy(MemberCachePolicy.VOICE.or(MemberCachePolicy.ONLINE).and(MemberCachePolicy.lru(50)))
+                .setEnableShutdownHook(false)
                 .build()
                 .awaitReady()
 
@@ -101,7 +104,6 @@ class DiscordContext(val bot: JDA, val guild: Guild, val channel: TextChannel, v
      * Reloads the registered commands
      */
     fun reloadCommands() {
-        if (bot.status == JDA.Status.SHUTTING_DOWN || bot.status == JDA.Status.SHUTDOWN) return
         guild.updateCommands().addCommands(commands.values.map { it.command() }).queue()
     }
 
@@ -117,17 +119,41 @@ class DiscordContext(val bot: JDA, val guild: Guild, val channel: TextChannel, v
     /**
      * Stops and shutdowns the bot
      */
-    @Throws(InterruptedException::class)
-    fun shutdown() {
-        // clearCommands()
-        bot.shutdown()
+    @JvmOverloads
+    fun shutdown(shutLimit: Duration = Duration.ofSeconds(3), threadWait: Long = 2000) {
+        if (!shutdown.compareAndSet(false, true)) return
+        val id = bot.selfUser.id
+
+        val shutThread = Thread({
+            try {
+                bot.shutdown()
+
+                if (!bot.awaitShutdown(shutLimit)) {
+                    bot.shutdownNow()
+                    bot.awaitShutdown(Duration.ofSeconds(2))
+                }
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+                bot.shutdownNow()
+            }
+        }, "DCBridge-$id-Shutdown").apply {
+            isDaemon = true
+            start()
+        }
 
         try {
-            if (!bot.awaitShutdown(Duration.ofSeconds(3))) {
-                bot.shutdownNow()
-                bot.awaitShutdown()
-            }
-        } catch (e: InterruptedException) { e.printStackTrace() }
+            shutThread.join(threadWait)
+        } catch (_: InterruptedException) {
+            Thread.currentThread().interrupt()
+        }
+    }
+
+    /**
+     * Forcefully shutdown the bot
+     */
+    fun forceShutdown() {
+        if (!shutdown.compareAndSet(false, true)) return
+        bot.shutdownNow()
     }
 
     /**
