@@ -82,10 +82,10 @@ public final class DiscordBridge extends JavaPlugin {
     @Override
     public void onDisable() {
         if (context != null) {
-            if (getConfiguration().getBoolean("discord.clearCommandsWhenShutdown", true)) context.clearCommands();
+            if (getConfiguration().getBoolean("discord.shutdown.clearCommands", true)) context.clearCommands();
 
             context.sendMessage(getConfiguration().getString("messages.discord.stop", ""));
-            context.shutdown(Duration.ofSeconds(str2long(getConfiguration().getString("discord.shutdownLimit", "3"))));
+            context.shutdown(Duration.ofSeconds(str2long(getConfiguration().getString("discord.shutdown.timeLimit", "3"))));
 
             context = null;
         }
@@ -112,8 +112,8 @@ public final class DiscordBridge extends JavaPlugin {
         config.getString("discord.status", "ONLINE");
         config.getBoolean("discord.playerEvents", true);
         config.getBoolean("discord.ignoreBots", false);
-        if (config.getProperty("discord.shutdownLimit") == null) config.setProperty("discord.shutdownLimit", 3);
-        config.getBoolean("discord.clearCommandsWhenShutdown", true);
+        if (config.getProperty("discord.shutdown.timeLimit") == null) config.setProperty("discord.shutdown.timeLimit", 3);
+        config.getBoolean("discord.shutdown.clearCommands", true);
 
         config.getString("messages.discord.start", "**Server online!**");
         config.getString("messages.discord.stop", "**Server offline!**");

@@ -79,10 +79,10 @@ public class DiscordBridge extends JavaPlugin {
     @Override
     public void onDisable() {
         if (context != null) {
-            if (getConfig().getBoolean("discord.clearCommandsWhenShutdown")) context.clearCommands();
+            if (getConfig().getBoolean("discord.shutdown.clearCommands")) context.clearCommands();
 
             context.sendMessage(getConfig().getString("messages.discord.stop", ""));
-            context.shutdown(Duration.ofSeconds(getConfig().getLong("discord.shutdownLimit", 3)));
+            context.shutdown(Duration.ofSeconds(getConfig().getLong("discord.shutdown.timeLimit", 3)));
 
             context = null;
         }
