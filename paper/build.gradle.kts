@@ -4,7 +4,7 @@ plugins {
 }
 
 group = rootProject.group
-version = "1.5-Paper"
+version = "1.6-Paper"
 
 repositories {
     maven("https://repo.papermc.io/repository/maven-public/")

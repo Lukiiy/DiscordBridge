@@ -1,7 +1,7 @@
 plugins { id("com.gradleup.shadow") version "8.3.0" }
 
 group = rootProject.group
-version = "1.5-Spigot"
+version = "1.6-Spigot"
 
 repositories {
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")

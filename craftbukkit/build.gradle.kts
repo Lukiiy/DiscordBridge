@@ -1,10 +1,10 @@
 plugins { id("com.gradleup.shadow") version "8.3.0" }
 
 group = rootProject.group
-version = "1.5-CB"
+version = "1.6-CB"
 
 dependencies {
-    compileOnly(files("lib/craftbukkit-1060.jar"))
+    compileOnly(files("lib/craftbukkit-1060.jar")) // Please use your own copy!
     implementation(project(":DSerial"))
 }
 
