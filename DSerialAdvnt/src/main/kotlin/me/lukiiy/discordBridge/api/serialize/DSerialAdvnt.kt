@@ -104,7 +104,7 @@ object DSerialAdvnt {
         return result
     }
 
-    // Colors from BridgeDefaults
+    // Default colors
     @JvmStatic val bridgeBlue = TextColor.fromHexString("#647ff8")
     @JvmStatic val bridgeFaint = TextColor.fromHexString("#7175a3")
     @JvmStatic val bridgeList = TextColor.fromHexString("#6d7494")

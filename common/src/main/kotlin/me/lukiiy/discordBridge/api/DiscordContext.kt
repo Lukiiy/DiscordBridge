@@ -103,9 +103,7 @@ class DiscordContext(val bot: JDA, val guild: Guild, val channel: TextChannel, v
     /**
      * Reloads the registered commands
      */
-    fun reloadCommands() {
-        guild.updateCommands().addCommands(commands.values.map { it.command() }).queue()
-    }
+    fun reloadCommands() = guild.updateCommands().addCommands(commands.values.map { it.command() }).queue()
 
     /**
      * Unregisters every command from the bot instance (on Discord)

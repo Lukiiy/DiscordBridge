@@ -51,7 +51,7 @@ public class DiscordEvents extends ListenerAdapter {
             msg.set(event.getMessage());
 
             MessageParts parts = MessageParts.from(
-                    config.getString("messages.minecraft.format", ""),
+                    config.getString("messages.minecraft.format", "").replace("(user)", instance.miniSerializableName(member)),
                     config.getString("messages.minecraft.prefix", ""),
                     member,
                     msg.get(),

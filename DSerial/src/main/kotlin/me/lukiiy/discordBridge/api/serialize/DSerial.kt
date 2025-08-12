@@ -3,6 +3,8 @@ package me.lukiiy.discordBridge.api.serialize
 import me.lukiiy.discordBridge.api.serialize.DSerial.fromDiscord
 import me.lukiiy.discordBridge.api.serialize.DSerial.toDiscord
 import net.dv8tion.jda.api.entities.Message
+import java.awt.Color
+import kotlin.math.sqrt
 
 
 object DSerial {
@@ -92,5 +94,40 @@ object DSerial {
         if (message.embeds.isNotEmpty()) result.add(" §8[${message.embeds.size} embed file(s)]§f")
 
         return result
+    }
+
+    /**
+     * Downsample a hex color string to a chat color code
+     */
+    @JvmStatic
+    fun minecraftSampledHex(hex: String): String {
+        val colorMap = mapOf(
+            '0' to Color.BLACK, // Black
+            '1' to Color(0, 0, 170), // Dark Blue
+            '2' to Color(0, 170, 0), // Dark Green
+            '3' to Color(0, 170, 170), // Dark Aqua
+            '4' to Color(170, 0, 0), // Dark Red
+            '5' to Color(170, 0, 170), // Dark Purple
+            '6' to Color(255, 170, 0), // Gold
+            '7' to Color(170, 170, 170), // Gray
+            '8' to Color(85, 85, 85), // Dark Gray
+            '9' to Color(85, 85, 255), // Blue
+            'a' to Color(85, 255, 85), // Green
+            'b' to Color(85, 255, 255), // Aqua
+            'c' to Color(255, 85, 85), // Red
+            'd' to Color(255, 85, 255), // Light Purple
+            'e' to Color(255, 255, 85), // Yellow
+            'f' to Color.WHITE // White
+        )
+
+        val target = runCatching { Color.decode(hex) }.getOrElse { Color.WHITE }
+
+        return colorMap.minByOrNull { (_, color) ->
+            val dr = target.red - color.red
+            val dg = target.green - color.green
+            val db = target.blue - color.blue
+
+            dr * dr + dg * dg + db * db
+        }?.let { "§${it.key}" } ?: "§f"
     }
 }

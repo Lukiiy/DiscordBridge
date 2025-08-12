@@ -1,14 +1,17 @@
 package me.lukiiy.discordBridge;
 
 import me.lukiiy.discordBridge.api.DiscordContext;
+import me.lukiiy.discordBridge.api.serialize.DSerial;
 import me.lukiiy.discordBridge.cmds.Main;
 import me.lukiiy.discordBridge.discordCmds.Console;
 import me.lukiiy.discordBridge.listeners.DiscordEvents;
 import me.lukiiy.discordBridge.listeners.PlayerEvents;
 import me.lukiiy.discordBridge.utils.BotHelper;
+import me.lukiiy.discordBridge.utils.MemberHelper;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Member;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -99,6 +102,11 @@ public final class DiscordBridge extends JavaPlugin {
         return context;
     }
 
+    public String miniSerializableName(Member member) {
+        if (getConfiguration().getBoolean("discord.useMemberNameColor", false)) return DSerial.minecraftSampledHex(MemberHelper.getHexColor(member)) + member.getEffectiveName() + "§f";
+        else return member.getEffectiveName();
+    }
+
     // Config
     public void setupConfig() {
         Configuration config = getConfiguration();
@@ -111,6 +119,7 @@ public final class DiscordBridge extends JavaPlugin {
         config.getString("discord.activity", "playing Minecraft");
         config.getString("discord.status", "ONLINE");
         config.getBoolean("discord.playerEvents", true);
+        config.getBoolean("discord.useMemberNameColor", false);
         config.getBoolean("discord.ignoreBots", false);
         if (config.getProperty("discord.shutdown.timeLimit") == null) config.setProperty("discord.shutdown.timeLimit", 3);
         config.getBoolean("discord.shutdown.clearCommands", true);
