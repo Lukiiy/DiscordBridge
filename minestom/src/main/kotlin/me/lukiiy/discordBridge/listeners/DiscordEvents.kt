@@ -45,14 +45,14 @@ class DiscordEvents : ListenerAdapter() {
         val formatted = Component.empty().append(prefix).append(content).appendSpace().append(Component.join(JoinConfiguration.spaces(), DSerialAdvnt.listAttachments(msg)))
 
         MinecraftServer.getConnectionManager().onlinePlayers.forEach { it.sendMessage(formatted) }
-        println(PlainTextComponentSerializer.plainText().serialize(formatted))
+        MinecraftServer.LOGGER.info(formatted)
     }
 
     override fun onGenericCommandInteraction(e: GenericCommandInteractionEvent) {
         val cmd = Main.context!!.getCommand(e.name) ?: return
 
         cmd.interaction(e)
-        println(PlainTextComponentSerializer.plainText().serialize(MINI.deserialize("[Discord] " + Main.miniSerializableName(e.member!!) + " issued server command: /" + e.fullCommandName)))
+        MinecraftServer.LOGGER.info(MINI.deserialize("[Discord] " + Main.miniSerializableName(e.member!!) + " issued server command: /" + e.fullCommandName))
     }
 
     override fun onThreadMemberJoin(e: ThreadMemberJoinEvent) {
@@ -64,7 +64,7 @@ class DiscordEvents : ListenerAdapter() {
             if (msg == Component.empty()) return
 
             MinecraftServer.getConnectionManager().onlinePlayers.forEach { it.sendMessage(msg) }
-            println(PlainTextComponentSerializer.plainText().serialize(msg))
+            MinecraftServer.LOGGER.info(msg)
         }
     }
 }

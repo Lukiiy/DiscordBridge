@@ -13,12 +13,7 @@ repositories {
 
 dependencies {
     implementation("net.minestom:minestom:2025.07.11-1.21.7")
-    implementation(project(":DSerialAdvnt")) {
-        exclude(group = "net.kyori", module = "adventure-text-minimessage")
-        exclude(group = "net.kyori", module = "adventure-text-serializer-legacy")
-        exclude(group = "net.kyori", module = "adventure-text-serializer-plain")
-    }
-    implementation("net.kyori:adventure-text-minimessage:4.22.0")
+    implementation(project(":DSerialAdvnt"))
     implementation("org.slf4j:slf4j-nop:2.0.17")
 }
 

@@ -23,7 +23,7 @@ class PlayerEvents(eventHandler: GlobalEventHandler, initialInstance: Instance) 
 
                 send(Main.config.getOrDefault("messages.discord.format", "")!!
                     .replace("(user)", plain.serialize(p.name))
-                    .replace("(msg)", plain.serialize(it.formattedMessage)), true)
+                    .replace("(msg)", it.rawMessage), true)
             }
 
             addListener(AsyncPlayerConfigurationEvent::class.java) {
@@ -31,12 +31,12 @@ class PlayerEvents(eventHandler: GlobalEventHandler, initialInstance: Instance) 
 
                 it.spawningInstance = initialInstance
                 p.respawnPoint = Pos(0.0, 42.0, 0.0)
-                send(plain.serialize(Component.translatable("multiplayer.player.joined").arguments(p.name)), false)
+                send("${plain.serialize(p.name)} joined", false)
             }
 
-            addListener(PlayerDisconnectEvent::class.java) { send(plain.serialize(Component.translatable("multiplayer.player.left").arguments(it.player.name)), false) }
+            addListener(PlayerDisconnectEvent::class.java) { send("${plain.serialize(it.player.name)} left", false) }
 
-            addListener(PlayerDeathEvent::class.java) { send(plain.serialize(Component.translatable("died").arguments(it.player.name)), false) }
+            addListener(PlayerDeathEvent::class.java) { send("${plain.serialize(it.player.name)} died", false) }
         }
     }
 
