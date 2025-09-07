@@ -64,7 +64,7 @@ class DiscordEvents : ListenerAdapter() {
             val content = fromDiscord(parts.content)
             val formatted: Component = Component.empty().append(prefix).append(content).appendSpace().append(Component.join(JoinConfiguration.spaces(), DSerialAdvnt.listAttachments(msg.get()!!)))
 
-            instance.server.onlinePlayers.forEach { p: Player? -> p!!.sendMessage(formatted) }
+            instance.server.onlinePlayers.forEach { p -> p!!.sendMessage(formatted) }
             instance.componentLogger.info(formatted)
         }
     }
