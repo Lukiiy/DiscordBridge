@@ -5,7 +5,6 @@ import me.lukiiy.discordBridge.DiscordBridge.Companion.getInstance
 import me.lukiiy.discordBridge.api.serialize.DSerialAdvnt.toDiscord
 import me.lukiiy.discordBridge.event.BridgeMinecraftReceiveEvent
 import me.lukiiy.discordBridge.utils.MemberHelper.fixMentions
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.Bukkit
 import org.bukkit.GameRule
 import org.bukkit.entity.Player
@@ -28,7 +27,7 @@ class DefaultEvents : Listener {
             Bukkit.getPluginManager().callEvent(bridgeEvent)
             if (bridgeEvent.isCancelled()) return@run
 
-            send(p, getInstance().getConfig().getString("messages.discord.format", "")!!
+            send(p, getInstance().config.getString("messages.discord.format", "")!!
                 .replace("(user)", toDiscord(p.displayName()))
                 .replace("(msg)", toDiscord(bridgeEvent.message)), true)
         }
@@ -67,7 +66,7 @@ class DefaultEvents : Listener {
         val instance = getInstance()
         val context = instance.context
 
-        if ((!priority && !instance.getConfig().getBoolean("discord.playerEvents")) || msg.isBlank()) return
+        if ((!priority && !instance.config.getBoolean("discord.playerEvents")) || msg.isBlank()) return
         msg = instance.parsePlaceholders(player, msg)!!
 
         context!!.sendMessage(toDiscord(fixMentions(msg, context.guild)))

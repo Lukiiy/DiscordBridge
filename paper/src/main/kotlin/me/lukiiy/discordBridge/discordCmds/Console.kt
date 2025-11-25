@@ -11,11 +11,9 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import org.bukkit.Bukkit
 
 class Console : CommandPlate {
-    override fun command(): CommandData {
-        return Commands.slash("console", "Executes a command as console.")
-            .addOptions(OptionData(OptionType.STRING, "command", "Command").setRequired(true))
-            .setContexts(InteractionContextType.GUILD, InteractionContextType.BOT_DM)
-    }
+    override fun command(): CommandData = Commands.slash("console", "Executes a command as console.")
+        .addOptions(OptionData(OptionType.STRING, "command", "Command").setRequired(true))
+        .setContexts(InteractionContextType.GUILD, InteractionContextType.BOT_DM)
 
     override fun interaction(interaction: CommandInteraction) {
         val instance = DiscordBridge.getInstance()

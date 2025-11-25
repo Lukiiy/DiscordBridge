@@ -15,7 +15,6 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.JoinConfiguration
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.Bukkit
-import org.bukkit.entity.Player
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.util.concurrent.atomic.AtomicReference
@@ -74,7 +73,7 @@ class DiscordEvents : ListenerAdapter() {
         val cmd = instance.context!!.getCommand(e.name) ?: return
 
         cmd.interaction(e)
-        instance.logger.info(PlainTextComponentSerializer.plainText().serialize(MINI.deserialize("[Discord] " + instance.miniSerializableName(e.member!!) + " issued server command: /" + e.getFullCommandName())))
+        instance.logger.info(PlainTextComponentSerializer.plainText().serialize(MINI.deserialize("[Discord] " + instance.miniSerializableName(e.member!!) + " issued server command: /" + e.fullCommandName)))
     }
 
     override fun onThreadMemberJoin(e: ThreadMemberJoinEvent) {

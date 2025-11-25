@@ -19,12 +19,11 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.config.Configuration;
 
 import java.time.Duration;
-import java.util.logging.Logger;
+import java.util.logging.Level;
 
 public final class DiscordBridge extends JavaPlugin {
     private static DiscordBridge instance;
     private DiscordContext context;
-    private Logger logger;
 
     @Override
     public void onEnable() {
@@ -33,7 +32,6 @@ public final class DiscordBridge extends JavaPlugin {
 
         PluginManager pluginManager = getServer().getPluginManager();
         Configuration config = getConfiguration();
-        logger = getServer().getLogger();
 
         PlayerEvents pListener = new PlayerEvents();
         pluginManager.registerEvent(Event.Type.PLAYER_JOIN, pListener, Event.Priority.Monitor, this);
@@ -45,7 +43,7 @@ public final class DiscordBridge extends JavaPlugin {
         // Bot
         String token = config.getString("discord.token");
         if (token == null || token.isEmpty()) {
-            logger.warning("Insert the bot token in config.yml and then restart the server.");
+            log(Level.WARNING, "Insert the bot token in config.yml and then restart the server.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -67,7 +65,7 @@ public final class DiscordBridge extends JavaPlugin {
                 try {
                     activity = BotHelper.getActivity(activityKey);
                 } catch (Exception e) {
-                    logger.info(e.getMessage());
+                    log(Level.INFO, e.getMessage());
                 }
 
                 bot.getPresence().setPresence(OnlineStatus.fromKey(statusKey), activity);
@@ -76,7 +74,7 @@ public final class DiscordBridge extends JavaPlugin {
                 if (context.getConsoleAdminRole() != null) context.addCommands(new Console(getServer()));
                 bot.addEventListener(new DiscordEvents());
             } catch (Exception e) {
-                logger.warning(e.getMessage());
+                log(Level.SEVERE, e.getMessage());
                 scheduler.scheduleSyncDelayedTask(this, () -> getServer().getPluginManager().disablePlugin(this));
             }
         });
@@ -100,6 +98,10 @@ public final class DiscordBridge extends JavaPlugin {
 
     public DiscordContext getContext() {
         return context;
+    }
+
+    public void log(Level level, String str) {
+        getServer().getLogger().log(level, "[DiscordBridge] " + str);
     }
 
     public String miniSerializableName(Member member) {
