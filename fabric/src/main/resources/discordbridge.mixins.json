@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "me.lukiiy.discordBridge.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ServerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "server": [
+    "GamePacketImplMixin",
+    "PlayerAdvancementsMixin",
+    "PlayerListMixin",
+    "ServerPlayerMixin"
+  ]
+}

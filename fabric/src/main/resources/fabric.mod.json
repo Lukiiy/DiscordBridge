@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "discordbridge",
+  "version": "${version}",
+
+  "name": "${name}",
+  "description": "${desc}",
+  "authors": ["Lukiiy"],
+  "contact": {
+    "homepage": "${web}",
+    "sources": "https://github.com/Lukiiy/DiscordBridge",
+    "issues": "https://github.com/Lukiiy/DiscordBridge/issues"
+  },
+
+  "license": "MIT",
+  "icon": "assets/discordBridge/icon.png",
+
+  "environment": "server",
+  "entrypoints": {
+    "main": ["me.lukiiy.discordBridge.DiscordBridge"]
+  },
+
+  "mixins": [
+    "discordbridge.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "${minecraft_version}"
+  }
+}
